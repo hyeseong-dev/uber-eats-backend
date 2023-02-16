@@ -10,7 +10,7 @@ export class Restaurant {
   
   @Field(type => String)
   address?: String;
-  
+
   @Field(type => String)
   ownersName?: String;
 }

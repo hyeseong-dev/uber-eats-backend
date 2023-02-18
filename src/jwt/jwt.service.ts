@@ -10,7 +10,10 @@ export class JwtService {
     private readonly options: JwtModuleOptions,
   ) {}
 
-  sign(userId: number): string {
+  async sign(userId: number): Promise<string> {
     return jwt.sign({id: userId}, this.options.privateKey)
+  }
+  async verify(token: string){
+    return jwt.verify(token, this.options.privateKey);
   }
 }

@@ -37,5 +37,6 @@ export class UserResolver {
       };
     }
   }
-
+  @Query(returns => User)
+  me() {}
 }

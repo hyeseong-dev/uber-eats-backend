@@ -1,5 +1,8 @@
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
+import * as jwt from 'jsonwebtoken';
+import { JwtService } from 'src/jwt/jwt.service';
 import { Repository } from 'typeorm';
 import { CreateAccountInput } from './dtos/create-account.dto';
 import { LoginInput } from './dtos/login.dto';
@@ -9,7 +12,8 @@ import { User } from './entities/user.entity';
 export class UserService {
   constructor(
     @InjectRepository(User)
-    private readonly users: Repository<User>
+    private readonly users: Repository<User>,
+    private readonly jwtService: JwtService,
   ){}
 
   async createAccount({
@@ -33,14 +37,32 @@ export class UserService {
   }: LoginInput): Promise<{ ok: boolean; error?: string; token?: string }> {
     // make a JWT and give it to the user
     try {
-      const user = await this.users.findOne({ where: { email}})
-      if (!user) return { ok: false, error: 'User not found'}
+      const user = await this.users.findOne({ where: {email }});
+      if (!user) {
+        return {
+          ok: false,
+          error: 'User not found',
+        };
+      }
       const passwordCorrect = await user.checkPassword(password);
-      if (!passwordCorrect) return { ok: false, error:'Wrong password'};
-      return { ok: true, token: 'lallalala'}
+      if (!passwordCorrect) {
+        return {
+          ok: false,
+          error: 'Wrong password',
+        };
+      }
+      const token = this.jwtService.sign(user.id)
+      console.log(token);
+      
+      return {
+        ok: true,
+        token,
+      };
     } catch (error) {
-      return { ok: false, error}
+      return {
+        ok: false,
+        error,
+      };
     }
   }
-
 }

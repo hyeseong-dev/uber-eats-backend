@@ -9,6 +9,7 @@ import { Restaurant } from './restaurants/entities/restaurant.entity';
 import { CommonModule } from './common/common.module';
 import { UsersModule } from './users/users.module';
 import { User } from './users/entities/user.entity';
+import { JwtModule } from './jwt/jwt.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { User } from './users/entities/user.entity';
         DB_NAME: Joi.string().required(),
         DB_SYNCHRONIZE : Joi.string().required(),
         DB_LOGGING: Joi.string().required(),
+        PRIVATE_KEY: Joi.string().required(),
       }),
     }),
     TypeOrmModule.forRoot({
@@ -43,6 +45,9 @@ import { User } from './users/entities/user.entity';
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       autoSchemaFile: true,
+    }),
+    JwtModule.forRoot({
+      privateKey: process.env.PRIVATE_KEY,
     }),
     RestaurantsModule,
     CommonModule,

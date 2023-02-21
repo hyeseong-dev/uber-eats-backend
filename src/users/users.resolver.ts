@@ -4,6 +4,7 @@ import { AuthUser } from 'src/auth/auth-user.decorator';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { CreateAccountInput, CreateAccountOutput } from './dtos/create-account.dto';
 import { LoginInput, LoginOutput } from './dtos/login.dto';
+import { UserProfileInput, UserProfileOutput } from './dtos/user-profile.dto';
 import { User } from './entities/user.entity';
 import { UserService } from './users.service';
 
@@ -11,11 +12,6 @@ import { UserService } from './users.service';
 @Resolver(of => User)
 export class UserResolver {
   constructor(private readonly userService: UserService){}
-
-  @Query(returns => Boolean)
-  hi() {
-    return true;
-  }
 
   @Mutation(returns => CreateAccountOutput)
   async createAccount(@Args('input') createAccountInput: CreateAccountInput
@@ -42,9 +38,22 @@ export class UserResolver {
   }
   @Query(returns => User)
   @UseGuards(AuthGuard)
-  me(@AuthUser() authUser: User) {    
-    console.log(authUser);
-    
+  async me(@AuthUser() authUser: User) {     
     return authUser;
+  }
+
+  @Query(returns => UserProfileOutput)
+  @UseGuards(AuthGuard)
+  async userProfile(
+    @Args() UserProfileInput: UserProfileInput
+  ): Promise<UserProfileOutput> {
+    try {
+      const user = await this.userService.findById(UserProfileInput.userId);
+      if (!user) throw Error();
+      return { ok: true, user };
+      return 
+    }catch (error) {
+      return { ok: false, error: 'User Not Found'}
+    }
   }
 }
